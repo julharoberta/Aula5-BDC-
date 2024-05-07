@@ -1,0 +1,93 @@
+#Criando um novo ambiente de interpretação do python
+
+cd C:\
+cd temp
+mkdir AppPythonMySql
+cd AppPythonMySql
+python -m venv venv
+dir
+code .              #Ele subiu o VS
+
+-------------------------------------------------------------------------------------
+ #command prompt
+
+where python
+venv\Scripts\activate
+pip install mysql-connector-python 
+
+python crud.py
+
+-------------------------------------------------------------------------------------
+#crud.py
+
+from mysql import connector as MyConnector
+
+
+def criar_tabela_aluno(conexao):
+    sql = """
+        CREATE TABLE IF NOT EXISTS aluno(
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        nome VARCHAR(255),
+        nascimento DATE
+        )
+    """
+    cursor = conexao.cursor()
+    cursor.execute(sql)
+    cursor.close()
+
+def criar_novo_aluno(conexao):
+    nome = input("Digite o nome do aluno: ")
+    nascimento = input("Digite o nascimento no formato dd\mm\YYYY: ")
+    nascimento_mysql = '-'.join(nascimento.split('/')[::-1])
+
+    cursor = conexao.cursor()
+    sql = "INSERT INTO aluno(nome, nascimento) VALUES (%s,%s)"
+    cursor.execute(sql, (nome, nascimento_mysql))
+    conexao.commit()
+    cursor.close()
+
+
+if __name__ == "__main__":
+    conexao = MyConnector.connect(
+        host='localhost',
+        user='myapp',
+        password='myapp',
+        database='mydbpython',
+        port=3306,
+    )
+
+    if conexao.is_connected:
+        print('Conexão Estabelecida')
+
+        criar_tabela_aluno(conexao)
+        criar_novo_aluno(conexao)
+        conexao.close()
+
+---------------------------------------------------------------------------------------
+#Criando uma sintaxe de usuário mais sua capacidade de acesso, delimito suas capacidades pelo @
+
+XAMPP
+
+SENHA CRIADA: myapp
+
+Create user myapp@'%' identified by 'myapp';
+create database mydbpython;
+grant all privileges on mydbpython.*to myapp@'%';
+
+show databases;
+
+exit
+mysql -u myapp -h localhost -p
+myapp
+
+show databases;
+use mydbpython;
+select * from aluno;
+------------------------------------------------------------------------------------------
+prompt de comndo
+
+nascimento = input("Entre com o nascimento no formato dd/mm/YYYY:")
+12/05/2003
+nascimento.split('/')
+(nascimento.split('/')[::-1])      
+ '-'.join(nascimento.split('/')[::-1])       #join, converto a lista para virara um string
